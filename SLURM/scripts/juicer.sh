@@ -1020,6 +1020,21 @@ then
 	export splitdir=${splitdir}; export outputdir=${outputdir}; export early=1; ${juiceDir}/scripts/check.sh
 	date
 FINCLN1`
+
+    jid=`sbatch <<- FINAL | egrep -o -e "\b[0-9]+$"
+    #!/bin/bash
+    #SBATCH -p $queue
+    #SBATCH --mem-per-cpu=2G
+    #SBATCH -t 1200
+    #SBATCH -c 1
+    #SBATCH --ntasks=1
+    #SBATCH -J "${groupname}_pipeline"
+    #SBATCH -d $dependfinish
+    date
+    ${juiceDir}/scripts/juicer_pipeline.sh
+    date
+FINAL`   
+
     echo "(-: Finished adding all jobs... Now is a good time to get that cup of coffee.."
     exit 0
 fi
@@ -1229,5 +1244,32 @@ jid=`sbatch <<- FINCLN1 | egrep -o -e "\b[0-9]+$"
 	export splitdir=${splitdir}; export outputdir=${outputdir}; ${juiceDir}/scripts/check.sh
 	date
 FINCLN1`
+dependfinish="${dependarrows}:$jid"
+
+jid=`sbatch <<- FINAL | egrep -o -e "\b[0-9]+$"
+    #!/bin/bash
+    #SBATCH -p $queue
+    #SBATCH -t 1200
+    #SBATCH -d $dependfinish
+
+    /pine/scr/n/e/nekramer/file_cleanup.sh $1
+FINAL`   
+
+
+
+
 
 echo "(-: Finished adding all jobs... Now is a good time to get that cup of coffee.."
+
+
+
+
+
+
+
+
+
+
+
+
+
